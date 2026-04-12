@@ -25,10 +25,6 @@ data class User(
     @Column(nullable = false)
     var password: String,
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    var role: Role = Role.USER,
-
     @Column(name = "image_url")
     var imageUrl: String? = null,
 

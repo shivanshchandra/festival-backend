@@ -1,8 +1,6 @@
 package com.app.festival_backend.service
 
-import com.app.festival_backend.config.JwtService
 import com.app.festival_backend.dto.auth.AuthUserData
-import com.app.festival_backend.dto.auth.LoginRequest
 import com.app.festival_backend.dto.auth.RegisterRequest
 import com.app.festival_backend.dto.auth.UpdateUserRequest
 import com.app.festival_backend.dto.auth.toAuthUserData
@@ -10,14 +8,11 @@ import com.app.festival_backend.entity.User
 import com.app.festival_backend.exception.BadRequestException
 import com.app.festival_backend.exception.ResourceNotFoundException
 import com.app.festival_backend.repository.UserRepository
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class AuthService(
-    private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder,
-    private val jwtService: JwtService
+    private val userRepository: UserRepository
 ) {
 
     fun register(request: RegisterRequest): AuthUserData {
@@ -30,27 +25,11 @@ class AuthService(
         val user = User(
             username = request.username.trim(),
             email = normalizedEmail,
-            password = passwordEncoder.encode(request.password),
-            role = request.role
+            password = request.password
         )
 
         val savedUser = userRepository.save(user)
         return savedUser.toAuthUserData()
-    }
-
-    fun login(request: LoginRequest): AuthUserData {
-        val normalizedEmail = request.email.trim().lowercase()
-
-        val user = userRepository.findByEmail(normalizedEmail)
-            .orElseThrow { BadRequestException("Invalid email or password") }
-
-        val passwordMatches = passwordEncoder.matches(request.password, user.password)
-        if (!passwordMatches) {
-            throw BadRequestException("Invalid email or password")
-        }
-
-        val token = jwtService.generateToken(user.email)
-        return user.toAuthUserData(token)
     }
 
     fun updateUser(request: UpdateUserRequest): AuthUserData {
@@ -70,10 +49,9 @@ class AuthService(
         }
 
         request.password?.let {
-            user.password = passwordEncoder.encode(it)
+            user.password = it
         }
 
-        request.role?.let { user.role = it }
         request.image?.let { user.imageUrl = it }
         request.phoneNumber?.let { user.phoneNumber = it }
         request.phoneCode?.let { user.phoneCode = it }

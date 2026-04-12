@@ -1,6 +1,5 @@
 package com.app.festival_backend.dto.auth
 
-import com.app.festival_backend.entity.Role
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -17,7 +16,5 @@ data class RegisterRequest(
 
     @field:NotBlank(message = "Password is required")
     @field:Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
-    val password: String,
-
-    val role: Role = Role.USER
+    val password: String
 )

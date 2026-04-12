@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.multipart.MaxUploadSizeExceededException
+import org.springframework.web.multipart.MultipartException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -88,6 +90,28 @@ class GlobalExceptionHandler {
             ApiResponse(
                 status = 400,
                 message = "Invalid value for parameter: ${ex.name}",
+                data = null
+            )
+        )
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    fun handleMaxUploadSizeExceeded(ex: MaxUploadSizeExceededException): ResponseEntity<ApiResponse<Nothing>> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ApiResponse(
+                status = 400,
+                message = "File size exceeds the maximum allowed limit",
+                data = null
+            )
+        )
+    }
+
+    @ExceptionHandler(MultipartException::class)
+    fun handleMultipartException(ex: MultipartException): ResponseEntity<ApiResponse<Nothing>> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ApiResponse(
+                status = 400,
+                message = "Invalid multipart request",
                 data = null
             )
         )

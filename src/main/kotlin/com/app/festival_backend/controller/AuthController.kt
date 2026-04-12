@@ -1,7 +1,6 @@
 package com.app.festival_backend.controller
 
 import com.app.festival_backend.dto.auth.AuthUserData
-import com.app.festival_backend.dto.auth.LoginRequest
 import com.app.festival_backend.dto.auth.RegisterRequest
 import com.app.festival_backend.dto.auth.UpdateUserRequest
 import com.app.festival_backend.dto.common.ApiResponse
@@ -26,20 +25,6 @@ class AuthController(
             ApiResponse(
                 status = 201,
                 message = "User registered successfully",
-                data = response
-            )
-        )
-    }
-
-    @PostMapping("/login")
-    fun login(
-        @Valid @RequestBody request: LoginRequest
-    ): ResponseEntity<ApiResponse<AuthUserData>> {
-        val response = authService.login(request)
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Login successful",
                 data = response
             )
         )
