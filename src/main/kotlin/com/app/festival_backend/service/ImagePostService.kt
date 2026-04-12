@@ -1,11 +1,14 @@
 package com.app.festival_backend.service
 
+import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.dto.image.ImagePostRequest
 import com.app.festival_backend.dto.image.ImagePostResponse
 import com.app.festival_backend.entity.ImagePost
 import com.app.festival_backend.exception.ResourceNotFoundException
 import com.app.festival_backend.repository.CategoryRepository
 import com.app.festival_backend.repository.ImagePostRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -39,6 +42,28 @@ class ImagePostService(
             .map { ImagePostResponse.from(it) }
     }
 
+    fun getAllPaginated(page: Int, size: Int): PagedResponse<ImagePostResponse> {
+        val pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by(
+                Sort.Order.asc("displayOrder"),
+                Sort.Order.asc("id")
+            )
+        )
+
+        val result = imagePostRepository.findByActiveTrue(pageable)
+
+        return PagedResponse(
+            content = result.content.map { ImagePostResponse.from(it) },
+            page = result.number,
+            size = result.size,
+            totalElements = result.totalElements,
+            totalPages = result.totalPages,
+            last = result.isLast
+        )
+    }
+
     fun getById(id: Long): ImagePostResponse {
         val imagePost = imagePostRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Image post not found with id: $id") }
@@ -53,6 +78,32 @@ class ImagePostService(
 
         return imagePostRepository.findByCategoryIdAndActiveTrueOrderByDisplayOrderAscIdAsc(categoryId)
             .map { ImagePostResponse.from(it) }
+    }
+
+    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<ImagePostResponse> {
+        if (!categoryRepository.existsById(categoryId)) {
+            throw ResourceNotFoundException("Category not found with id: $categoryId")
+        }
+
+        val pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by(
+                Sort.Order.asc("displayOrder"),
+                Sort.Order.asc("id")
+            )
+        )
+
+        val result = imagePostRepository.findByCategoryIdAndActiveTrue(categoryId, pageable)
+
+        return PagedResponse(
+            content = result.content.map { ImagePostResponse.from(it) },
+            page = result.number,
+            size = result.size,
+            totalElements = result.totalElements,
+            totalPages = result.totalPages,
+            last = result.isLast
+        )
     }
 
     fun update(id: Long, request: ImagePostRequest): ImagePostResponse {

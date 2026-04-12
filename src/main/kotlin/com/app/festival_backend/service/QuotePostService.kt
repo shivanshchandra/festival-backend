@@ -1,11 +1,14 @@
 package com.app.festival_backend.service
 
+import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.dto.quote.QuotePostRequest
 import com.app.festival_backend.dto.quote.QuotePostResponse
 import com.app.festival_backend.entity.QuotePost
 import com.app.festival_backend.exception.ResourceNotFoundException
 import com.app.festival_backend.repository.CategoryRepository
 import com.app.festival_backend.repository.QuotePostRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -39,6 +42,28 @@ class QuotePostService(
             .map { QuotePostResponse.from(it) }
     }
 
+    fun getAllPaginated(page: Int, size: Int): PagedResponse<QuotePostResponse> {
+        val pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by(
+                Sort.Order.asc("displayOrder"),
+                Sort.Order.asc("id")
+            )
+        )
+
+        val result = quotePostRepository.findByActiveTrue(pageable)
+
+        return PagedResponse(
+            content = result.content.map { QuotePostResponse.from(it) },
+            page = result.number,
+            size = result.size,
+            totalElements = result.totalElements,
+            totalPages = result.totalPages,
+            last = result.isLast
+        )
+    }
+
     fun getById(id: Long): QuotePostResponse {
         val quotePost = quotePostRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Quote post not found with id: $id") }
@@ -53,6 +78,32 @@ class QuotePostService(
 
         return quotePostRepository.findByCategoryIdAndActiveTrueOrderByDisplayOrderAscIdAsc(categoryId)
             .map { QuotePostResponse.from(it) }
+    }
+
+    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<QuotePostResponse> {
+        if (!categoryRepository.existsById(categoryId)) {
+            throw ResourceNotFoundException("Category not found with id: $categoryId")
+        }
+
+        val pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by(
+                Sort.Order.asc("displayOrder"),
+                Sort.Order.asc("id")
+            )
+        )
+
+        val result = quotePostRepository.findByCategoryIdAndActiveTrue(categoryId, pageable)
+
+        return PagedResponse(
+            content = result.content.map { QuotePostResponse.from(it) },
+            page = result.number,
+            size = result.size,
+            totalElements = result.totalElements,
+            totalPages = result.totalPages,
+            last = result.isLast
+        )
     }
 
     fun update(id: Long, request: QuotePostRequest): QuotePostResponse {

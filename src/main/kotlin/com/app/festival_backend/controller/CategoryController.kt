@@ -3,6 +3,7 @@ package com.app.festival_backend.controller
 import com.app.festival_backend.dto.category.CategoryRequest
 import com.app.festival_backend.dto.category.CategoryResponse
 import com.app.festival_backend.dto.common.ApiResponse
+import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.service.CategoryService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -30,6 +31,21 @@ class CategoryController(
     @GetMapping
     fun getAll(): ResponseEntity<ApiResponse<List<CategoryResponse>>> {
         val response = categoryService.getAll()
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Categories fetched successfully",
+                data = response
+            )
+        )
+    }
+
+    @GetMapping("/paginated")
+    fun getAllPaginated(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<ApiResponse<PagedResponse<CategoryResponse>>> {
+        val response = categoryService.getAllPaginated(page, size)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,

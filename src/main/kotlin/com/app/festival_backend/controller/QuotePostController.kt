@@ -1,6 +1,7 @@
 package com.app.festival_backend.controller
 
 import com.app.festival_backend.dto.common.ApiResponse
+import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.dto.quote.QuotePostRequest
 import com.app.festival_backend.dto.quote.QuotePostResponse
 import com.app.festival_backend.service.QuotePostService
@@ -39,6 +40,21 @@ class QuotePostController(
         )
     }
 
+    @GetMapping("/quotes/paginated")
+    fun getAllPaginated(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
+        val response = quotePostService.getAllPaginated(page, size)
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Quotes fetched successfully",
+                data = response
+            )
+        )
+    }
+
     @GetMapping("/quotes/{id}")
     fun getById(@PathVariable id: Long): ResponseEntity<ApiResponse<QuotePostResponse>> {
         val response = quotePostService.getById(id)
@@ -54,6 +70,22 @@ class QuotePostController(
     @GetMapping("/categories/{categoryId}/quotes")
     fun getByCategoryId(@PathVariable categoryId: Long): ResponseEntity<ApiResponse<List<QuotePostResponse>>> {
         val response = quotePostService.getByCategoryId(categoryId)
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Quotes fetched successfully",
+                data = response
+            )
+        )
+    }
+
+    @GetMapping("/categories/{categoryId}/quotes/paginated")
+    fun getByCategoryIdPaginated(
+        @PathVariable categoryId: Long,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
+        val response = quotePostService.getByCategoryIdPaginated(categoryId, page, size)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
