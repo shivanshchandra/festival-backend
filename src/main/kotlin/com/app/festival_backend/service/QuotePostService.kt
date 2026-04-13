@@ -25,10 +25,8 @@ class QuotePostService(
         val quotePost = QuotePost(
             title = request.title,
             quoteText = request.quoteText,
-            author = request.author,
             category = category,
             isPremium = request.isPremium,
-            active = request.active,
             displayOrder = request.displayOrder,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
@@ -47,7 +45,7 @@ class QuotePostService(
             )
         )
 
-        val result = quotePostRepository.findByActiveTrue(pageable)
+        val result = quotePostRepository.findAll(pageable)
 
         return PagedResponse(
             content = result.content.map { QuotePostResponse.from(it) },
@@ -80,7 +78,7 @@ class QuotePostService(
             )
         )
 
-        val result = quotePostRepository.findByCategoryIdAndActiveTrue(categoryId, pageable)
+        val result = quotePostRepository.findByCategory_Id(categoryId, pageable)
 
         return PagedResponse(
             content = result.content.map { QuotePostResponse.from(it) },
@@ -102,10 +100,8 @@ class QuotePostService(
         val updated = existing.copy(
             title = request.title,
             quoteText = request.quoteText,
-            author = request.author,
             category = category,
             isPremium = request.isPremium,
-            active = request.active,
             displayOrder = request.displayOrder,
             updatedAt = LocalDateTime.now()
         )

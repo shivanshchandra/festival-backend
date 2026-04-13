@@ -6,11 +6,9 @@ data class QuotePostResponse(
     val id: Long,
     val title: String,
     val quoteText: String,
-    val author: String?,
     val categoryId: Long,
     val categoryName: String,
     val isPremium: Boolean,
-    val active: Boolean,
     val displayOrder: Int
 ) {
     companion object {
@@ -19,11 +17,9 @@ data class QuotePostResponse(
                 id = entity.id,
                 title = entity.title,
                 quoteText = entity.quoteText,
-                author = entity.author,
                 categoryId = entity.category.id,
                 categoryName = entity.category.name,
                 isPremium = entity.isPremium,
-                active = entity.active,
                 displayOrder = entity.displayOrder
             )
         }

@@ -5,10 +5,10 @@ import com.app.festival_backend.entity.Category
 data class CategoryResponse(
     val id: Long,
     val name: String,
-    val slug: String,
     val description: String?,
+    val imageUrl: String?,
     val thumbnailUrl: String?,
-    val active: Boolean,
+    val isPremium: Boolean,
     val displayOrder: Int
 ) {
     companion object {
@@ -16,10 +16,10 @@ data class CategoryResponse(
             return CategoryResponse(
                 id = entity.id,
                 name = entity.name,
-                slug = entity.slug,
                 description = entity.description,
+                imageUrl = entity.imageUrl,
                 thumbnailUrl = entity.thumbnailUrl,
-                active = entity.active,
+                isPremium = entity.isPremium,
                 displayOrder = entity.displayOrder
             )
         }

@@ -28,7 +28,6 @@ class ImagePostService(
             thumbnailUrl = request.thumbnailUrl,
             category = category,
             isPremium = request.isPremium,
-            active = request.active,
             displayOrder = request.displayOrder,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
@@ -47,7 +46,7 @@ class ImagePostService(
             )
         )
 
-        val result = imagePostRepository.findByActiveTrue(pageable)
+        val result = imagePostRepository.findAll(pageable)
 
         return PagedResponse(
             content = result.content.map { ImagePostResponse.from(it) },
@@ -80,7 +79,7 @@ class ImagePostService(
             )
         )
 
-        val result = imagePostRepository.findByCategoryIdAndActiveTrue(categoryId, pageable)
+        val result = imagePostRepository.findByCategory_Id(categoryId, pageable)
 
         return PagedResponse(
             content = result.content.map { ImagePostResponse.from(it) },
@@ -105,7 +104,6 @@ class ImagePostService(
             thumbnailUrl = request.thumbnailUrl,
             category = category,
             isPremium = request.isPremium,
-            active = request.active,
             displayOrder = request.displayOrder,
             updatedAt = LocalDateTime.now()
         )

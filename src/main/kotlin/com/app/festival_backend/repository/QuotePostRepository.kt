@@ -9,11 +9,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface QuotePostRepository : JpaRepository<QuotePost, Long> {
 
-    fun findByActiveTrueOrderByDisplayOrderAscIdAsc(): List<QuotePost>
+    fun findAllByOrderByDisplayOrderAscIdAsc(): List<QuotePost>
 
-    fun findByCategoryIdAndActiveTrueOrderByDisplayOrderAscIdAsc(categoryId: Long): List<QuotePost>
+    fun findByCategory_IdOrderByDisplayOrderAscIdAsc(categoryId: Long): List<QuotePost>
 
-    fun findByActiveTrue(pageable: Pageable): Page<QuotePost>
-
-    fun findByCategoryIdAndActiveTrue(categoryId: Long, pageable: Pageable): Page<QuotePost>
+    fun findByCategory_Id(categoryId: Long, pageable: Pageable): Page<QuotePost>
 }

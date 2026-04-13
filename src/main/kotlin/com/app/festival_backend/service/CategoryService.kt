@@ -18,16 +18,18 @@ class CategoryService(
 ) {
 
     fun create(request: CategoryRequest): CategoryResponse {
-        if (categoryRepository.existsBySlug(request.slug)) {
-            throw BadRequestException("Category slug already exists: ${request.slug}")
+        val normalizedName = request.name.trim()
+
+        if (categoryRepository.existsByName(normalizedName)) {
+            throw BadRequestException("Category already exists with name: $normalizedName")
         }
 
         val category = Category(
-            name = request.name,
-            slug = request.slug,
+            name = normalizedName,
             description = request.description,
+            imageUrl = request.imageUrl,
             thumbnailUrl = request.thumbnailUrl,
-            active = request.active,
+            isPremium = request.isPremium,
             displayOrder = request.displayOrder,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
@@ -46,7 +48,7 @@ class CategoryService(
             )
         )
 
-        val result = categoryRepository.findByActiveTrue(pageable)
+        val result = categoryRepository.findAll(pageable)
 
         return PagedResponse(
             content = result.content.map { CategoryResponse.from(it) },
@@ -69,17 +71,18 @@ class CategoryService(
         val existing = categoryRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Category not found with id: $id") }
 
-        val anotherCategory = categoryRepository.findBySlug(request.slug)
-        if (anotherCategory != null && anotherCategory.id != id) {
-            throw BadRequestException("Category slug already exists: ${request.slug}")
+        val normalizedName = request.name.trim()
+
+        if (normalizedName != existing.name && categoryRepository.existsByName(normalizedName)) {
+            throw BadRequestException("Category already exists with name: $normalizedName")
         }
 
         val updated = existing.copy(
-            name = request.name,
-            slug = request.slug,
+            name = normalizedName,
             description = request.description,
+            imageUrl = request.imageUrl,
             thumbnailUrl = request.thumbnailUrl,
-            active = request.active,
+            isPremium = request.isPremium,
             displayOrder = request.displayOrder,
             updatedAt = LocalDateTime.now()
         )

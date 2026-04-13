@@ -28,7 +28,6 @@ class VideoPostService(
             thumbnailUrl = request.thumbnailUrl,
             category = category,
             isPremium = request.isPremium,
-            active = request.active,
             displayOrder = request.displayOrder,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
@@ -47,7 +46,7 @@ class VideoPostService(
             )
         )
 
-        val result = videoPostRepository.findByActiveTrue(pageable)
+        val result = videoPostRepository.findAll(pageable)
 
         return PagedResponse(
             content = result.content.map { VideoPostResponse.from(it) },
@@ -80,7 +79,7 @@ class VideoPostService(
             )
         )
 
-        val result = videoPostRepository.findByCategoryIdAndActiveTrue(categoryId, pageable)
+        val result = videoPostRepository.findByCategory_Id(categoryId, pageable)
 
         return PagedResponse(
             content = result.content.map { VideoPostResponse.from(it) },
@@ -105,7 +104,6 @@ class VideoPostService(
             thumbnailUrl = request.thumbnailUrl,
             category = category,
             isPremium = request.isPremium,
-            active = request.active,
             displayOrder = request.displayOrder,
             updatedAt = LocalDateTime.now()
         )

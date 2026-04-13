@@ -10,7 +10,6 @@ data class VideoPostResponse(
     val categoryId: Long,
     val categoryName: String,
     val isPremium: Boolean,
-    val active: Boolean,
     val displayOrder: Int
 ) {
     companion object {
@@ -23,7 +22,6 @@ data class VideoPostResponse(
                 categoryId = entity.category.id,
                 categoryName = entity.category.name,
                 isPremium = entity.isPremium,
-                active = entity.active,
                 displayOrder = entity.displayOrder
             )
         }

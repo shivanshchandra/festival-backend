@@ -14,14 +14,10 @@ data class QuotePostRequest(
     @field:NotBlank(message = "Quote text is required")
     val quoteText: String,
 
-    val author: String? = null,
-
     @field:NotNull(message = "Category id is required")
     val categoryId: Long,
 
     val isPremium: Boolean = false,
-
-    val active: Boolean = true,
 
     @field:Min(value = 0, message = "Display order must be 0 or greater")
     val displayOrder: Int = 0

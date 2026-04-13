@@ -1,8 +1,10 @@
 package com.app.festival_backend.exception
 
 import com.app.festival_backend.dto.common.ApiResponse
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -80,6 +82,40 @@ class GlobalExceptionHandler {
                 status = 400,
                 message = "Validation failed",
                 data = errors
+            )
+        )
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadable(ex: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Nothing>> {
+        val cause = ex.cause
+
+        if (cause is UnrecognizedPropertyException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse(
+                    status = 400,
+                    message = "Unknown field: ${cause.propertyName}",
+                    data = null
+                )
+            )
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ApiResponse(
+                status = 400,
+                message = "Invalid request body",
+                data = null
+            )
+        )
+    }
+
+    @ExceptionHandler(UnrecognizedPropertyException::class)
+    fun handleUnrecognizedProperty(ex: UnrecognizedPropertyException): ResponseEntity<ApiResponse<Nothing>> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ApiResponse(
+                status = 400,
+                message = "Unknown field: ${ex.propertyName}",
+                data = null
             )
         )
     }

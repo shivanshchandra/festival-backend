@@ -17,18 +17,12 @@ data class QuotePost(
     @Column(nullable = false, columnDefinition = "TEXT")
     val quoteText: String,
 
-    @Column(length = 255)
-    val author: String? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     val category: Category,
 
     @Column(nullable = false)
     val isPremium: Boolean = false,
-
-    @Column(nullable = false)
-    val active: Boolean = true,
 
     @Column(nullable = false)
     val displayOrder: Int = 0,

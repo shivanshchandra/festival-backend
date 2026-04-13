@@ -9,11 +9,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ImagePostRepository : JpaRepository<ImagePost, Long> {
 
-    fun findByActiveTrueOrderByDisplayOrderAscIdAsc(): List<ImagePost>
+    fun findAllByOrderByDisplayOrderAscIdAsc(): List<ImagePost>
 
-    fun findByCategoryIdAndActiveTrueOrderByDisplayOrderAscIdAsc(categoryId: Long): List<ImagePost>
+    fun findByCategory_IdOrderByDisplayOrderAscIdAsc(categoryId: Long): List<ImagePost>
 
-    fun findByActiveTrue(pageable: Pageable): Page<ImagePost>
-
-    fun findByCategoryIdAndActiveTrue(categoryId: Long, pageable: Pageable): Page<ImagePost>
+    fun findByCategory_Id(categoryId: Long, pageable: Pageable): Page<ImagePost>
 }

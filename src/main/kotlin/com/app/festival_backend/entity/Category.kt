@@ -14,17 +14,17 @@ data class Category(
     @Column(nullable = false, unique = true, length = 100)
     val name: String,
 
-    @Column(nullable = false, unique = true, length = 100)
-    val slug: String,
-
     @Column(columnDefinition = "TEXT")
     val description: String? = null,
 
-    @Column(length = 255)
+    @Column(length = 500)
+    val imageUrl: String? = null,
+
+    @Column(length = 500)
     val thumbnailUrl: String? = null,
 
     @Column(nullable = false)
-    val active: Boolean = true,
+    val isPremium: Boolean = false,
 
     @Column(nullable = false)
     val displayOrder: Int = 0,

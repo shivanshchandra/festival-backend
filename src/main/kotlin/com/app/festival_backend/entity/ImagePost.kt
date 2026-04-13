@@ -28,9 +28,6 @@ data class ImagePost(
     val isPremium: Boolean = false,
 
     @Column(nullable = false)
-    val active: Boolean = true,
-
-    @Column(nullable = false)
     val displayOrder: Int = 0,
 
     @Column(nullable = false, updatable = false)
