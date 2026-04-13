@@ -37,15 +37,10 @@ class ImagePostService(
         return ImagePostResponse.from(imagePostRepository.save(imagePost))
     }
 
-    fun getAll(): List<ImagePostResponse> {
-        return imagePostRepository.findByActiveTrueOrderByDisplayOrderAscIdAsc()
-            .map { ImagePostResponse.from(it) }
-    }
-
-    fun getAllPaginated(page: Int, size: Int): PagedResponse<ImagePostResponse> {
+    fun getAllPaginated(page: Int): PagedResponse<ImagePostResponse> {
         val pageable = PageRequest.of(
             page,
-            size,
+            10,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")
@@ -71,23 +66,14 @@ class ImagePostService(
         return ImagePostResponse.from(imagePost)
     }
 
-    fun getByCategoryId(categoryId: Long): List<ImagePostResponse> {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw ResourceNotFoundException("Category not found with id: $categoryId")
-        }
-
-        return imagePostRepository.findByCategoryIdAndActiveTrueOrderByDisplayOrderAscIdAsc(categoryId)
-            .map { ImagePostResponse.from(it) }
-    }
-
-    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<ImagePostResponse> {
+    fun getByCategoryIdPaginated(categoryId: Long, page: Int): PagedResponse<ImagePostResponse> {
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
 
         val pageable = PageRequest.of(
             page,
-            size,
+            10,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")

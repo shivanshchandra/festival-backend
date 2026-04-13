@@ -29,23 +29,10 @@ class VideoPostController(
     }
 
     @GetMapping("/videos")
-    fun getAll(): ResponseEntity<ApiResponse<List<VideoPostResponse>>> {
-        val response = videoPostService.getAll()
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Videos fetched successfully",
-                data = response
-            )
-        )
-    }
-
-    @GetMapping("/videos/paginated")
-    fun getAllPaginated(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+    fun getAll(
+        @RequestParam(defaultValue = "0") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<VideoPostResponse>>> {
-        val response = videoPostService.getAllPaginated(page, size)
+        val response = videoPostService.getAllPaginated(page)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -68,24 +55,11 @@ class VideoPostController(
     }
 
     @GetMapping("/categories/{categoryId}/videos")
-    fun getByCategoryId(@PathVariable categoryId: Long): ResponseEntity<ApiResponse<List<VideoPostResponse>>> {
-        val response = videoPostService.getByCategoryId(categoryId)
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Videos fetched successfully",
-                data = response
-            )
-        )
-    }
-
-    @GetMapping("/categories/{categoryId}/videos/paginated")
-    fun getByCategoryIdPaginated(
+    fun getByCategoryId(
         @PathVariable categoryId: Long,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "0") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<VideoPostResponse>>> {
-        val response = videoPostService.getByCategoryIdPaginated(categoryId, page, size)
+        val response = videoPostService.getByCategoryIdPaginated(categoryId, page)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -95,7 +69,7 @@ class VideoPostController(
         )
     }
 
-    @PutMapping("/videos/{id}")
+    @PostMapping("/videos/{id}")
     fun update(
         @PathVariable id: Long,
         @Valid @RequestBody request: VideoPostRequest

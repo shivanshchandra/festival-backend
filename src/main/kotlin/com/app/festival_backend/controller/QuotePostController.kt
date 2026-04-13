@@ -29,23 +29,10 @@ class QuotePostController(
     }
 
     @GetMapping("/quotes")
-    fun getAll(): ResponseEntity<ApiResponse<List<QuotePostResponse>>> {
-        val response = quotePostService.getAll()
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Quotes fetched successfully",
-                data = response
-            )
-        )
-    }
-
-    @GetMapping("/quotes/paginated")
-    fun getAllPaginated(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+    fun getAll(
+        @RequestParam(defaultValue = "0") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
-        val response = quotePostService.getAllPaginated(page, size)
+        val response = quotePostService.getAllPaginated(page)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -68,24 +55,11 @@ class QuotePostController(
     }
 
     @GetMapping("/categories/{categoryId}/quotes")
-    fun getByCategoryId(@PathVariable categoryId: Long): ResponseEntity<ApiResponse<List<QuotePostResponse>>> {
-        val response = quotePostService.getByCategoryId(categoryId)
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Quotes fetched successfully",
-                data = response
-            )
-        )
-    }
-
-    @GetMapping("/categories/{categoryId}/quotes/paginated")
-    fun getByCategoryIdPaginated(
+    fun getByCategoryId(
         @PathVariable categoryId: Long,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "0") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
-        val response = quotePostService.getByCategoryIdPaginated(categoryId, page, size)
+        val response = quotePostService.getByCategoryIdPaginated(categoryId, page)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -95,7 +69,7 @@ class QuotePostController(
         )
     }
 
-    @PutMapping("/quotes/{id}")
+    @PostMapping("/quotes/{id}")
     fun update(
         @PathVariable id: Long,
         @Valid @RequestBody request: QuotePostRequest

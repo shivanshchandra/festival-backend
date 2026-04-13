@@ -37,15 +37,10 @@ class QuotePostService(
         return QuotePostResponse.from(quotePostRepository.save(quotePost))
     }
 
-    fun getAll(): List<QuotePostResponse> {
-        return quotePostRepository.findByActiveTrueOrderByDisplayOrderAscIdAsc()
-            .map { QuotePostResponse.from(it) }
-    }
-
-    fun getAllPaginated(page: Int, size: Int): PagedResponse<QuotePostResponse> {
+    fun getAllPaginated(page: Int): PagedResponse<QuotePostResponse> {
         val pageable = PageRequest.of(
             page,
-            size,
+            10,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")
@@ -71,23 +66,14 @@ class QuotePostService(
         return QuotePostResponse.from(quotePost)
     }
 
-    fun getByCategoryId(categoryId: Long): List<QuotePostResponse> {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw ResourceNotFoundException("Category not found with id: $categoryId")
-        }
-
-        return quotePostRepository.findByCategoryIdAndActiveTrueOrderByDisplayOrderAscIdAsc(categoryId)
-            .map { QuotePostResponse.from(it) }
-    }
-
-    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<QuotePostResponse> {
+    fun getByCategoryIdPaginated(categoryId: Long, page: Int): PagedResponse<QuotePostResponse> {
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
 
         val pageable = PageRequest.of(
             page,
-            size,
+            10,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")

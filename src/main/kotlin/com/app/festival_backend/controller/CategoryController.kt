@@ -29,23 +29,10 @@ class CategoryController(
     }
 
     @GetMapping
-    fun getAll(): ResponseEntity<ApiResponse<List<CategoryResponse>>> {
-        val response = categoryService.getAll()
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Categories fetched successfully",
-                data = response
-            )
-        )
-    }
-
-    @GetMapping("/paginated")
-    fun getAllPaginated(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+    fun getAll(
+        @RequestParam(defaultValue = "0") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<CategoryResponse>>> {
-        val response = categoryService.getAllPaginated(page, size)
+        val response = categoryService.getAllPaginated(page)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -67,7 +54,7 @@ class CategoryController(
         )
     }
 
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     fun update(
         @PathVariable id: Long,
         @Valid @RequestBody request: CategoryRequest

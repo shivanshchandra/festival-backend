@@ -36,16 +36,14 @@ class CategoryService(
         return CategoryResponse.from(categoryRepository.save(category))
     }
 
-    fun getAll(): List<CategoryResponse> {
-        return categoryRepository.findByActiveTrueOrderByDisplayOrderAsc()
-            .map { CategoryResponse.from(it) }
-    }
-
-    fun getAllPaginated(page: Int, size: Int): PagedResponse<CategoryResponse> {
+    fun getAllPaginated(page: Int): PagedResponse<CategoryResponse> {
         val pageable = PageRequest.of(
             page,
-            size,
-            Sort.by(Sort.Direction.ASC, "displayOrder")
+            10,
+            Sort.by(
+                Sort.Order.asc("displayOrder"),
+                Sort.Order.asc("id")
+            )
         )
 
         val result = categoryRepository.findByActiveTrue(pageable)

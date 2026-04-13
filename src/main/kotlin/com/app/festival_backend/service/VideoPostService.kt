@@ -37,15 +37,10 @@ class VideoPostService(
         return VideoPostResponse.from(videoPostRepository.save(videoPost))
     }
 
-    fun getAll(): List<VideoPostResponse> {
-        return videoPostRepository.findByActiveTrueOrderByDisplayOrderAscIdAsc()
-            .map { VideoPostResponse.from(it) }
-    }
-
-    fun getAllPaginated(page: Int, size: Int): PagedResponse<VideoPostResponse> {
+    fun getAllPaginated(page: Int): PagedResponse<VideoPostResponse> {
         val pageable = PageRequest.of(
             page,
-            size,
+            10,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")
@@ -71,23 +66,14 @@ class VideoPostService(
         return VideoPostResponse.from(video)
     }
 
-    fun getByCategoryId(categoryId: Long): List<VideoPostResponse> {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw ResourceNotFoundException("Category not found with id: $categoryId")
-        }
-
-        return videoPostRepository.findByCategoryIdAndActiveTrueOrderByDisplayOrderAscIdAsc(categoryId)
-            .map { VideoPostResponse.from(it) }
-    }
-
-    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<VideoPostResponse> {
+    fun getByCategoryIdPaginated(categoryId: Long, page: Int): PagedResponse<VideoPostResponse> {
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
 
         val pageable = PageRequest.of(
             page,
-            size,
+            10,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")

@@ -29,23 +29,10 @@ class ImagePostController(
     }
 
     @GetMapping("/images")
-    fun getAll(): ResponseEntity<ApiResponse<List<ImagePostResponse>>> {
-        val response = imagePostService.getAll()
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Images fetched successfully",
-                data = response
-            )
-        )
-    }
-
-    @GetMapping("/images/paginated")
-    fun getAllPaginated(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+    fun getAll(
+        @RequestParam(defaultValue = "0") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
-        val response = imagePostService.getAllPaginated(page, size)
+        val response = imagePostService.getAllPaginated(page)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -68,24 +55,11 @@ class ImagePostController(
     }
 
     @GetMapping("/categories/{categoryId}/images")
-    fun getByCategoryId(@PathVariable categoryId: Long): ResponseEntity<ApiResponse<List<ImagePostResponse>>> {
-        val response = imagePostService.getByCategoryId(categoryId)
-        return ResponseEntity.ok(
-            ApiResponse(
-                status = 200,
-                message = "Images fetched successfully",
-                data = response
-            )
-        )
-    }
-
-    @GetMapping("/categories/{categoryId}/images/paginated")
-    fun getByCategoryIdPaginated(
+    fun getByCategoryId(
         @PathVariable categoryId: Long,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "0") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
-        val response = imagePostService.getByCategoryIdPaginated(categoryId, page, size)
+        val response = imagePostService.getByCategoryIdPaginated(categoryId, page)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -95,7 +69,7 @@ class ImagePostController(
         )
     }
 
-    @PutMapping("/images/{id}")
+    @PostMapping("/images/{id}")
     fun update(
         @PathVariable id: Long,
         @Valid @RequestBody request: ImagePostRequest
