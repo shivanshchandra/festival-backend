@@ -3,7 +3,6 @@ package com.app.festival_backend.controller
 import com.app.festival_backend.dto.common.ApiResponse
 import com.app.festival_backend.dto.upload.FileUploadResponse
 import com.app.festival_backend.service.FileStorageService
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -19,9 +18,9 @@ class UploadController(
         @RequestParam("file") file: MultipartFile
     ): ResponseEntity<ApiResponse<FileUploadResponse>> {
         val response = fileStorageService.uploadImage(file)
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        return ResponseEntity.ok(
             ApiResponse(
-                status = 201,
+                status = 200,
                 message = "Image uploaded successfully",
                 data = response
             )
@@ -33,9 +32,9 @@ class UploadController(
         @RequestParam("file") file: MultipartFile
     ): ResponseEntity<ApiResponse<FileUploadResponse>> {
         val response = fileStorageService.uploadVideo(file)
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        return ResponseEntity.ok(
             ApiResponse(
-                status = 201,
+                status = 200,
                 message = "Video uploaded successfully",
                 data = response
             )

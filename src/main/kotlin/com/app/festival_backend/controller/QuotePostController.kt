@@ -1,12 +1,14 @@
 package com.app.festival_backend.controller
 
 import com.app.festival_backend.dto.common.ApiResponse
+import com.app.festival_backend.dto.common.CategoryContentRequest
+import com.app.festival_backend.dto.common.DeleteQuoteRequest
 import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.dto.quote.QuotePostRequest
 import com.app.festival_backend.dto.quote.QuotePostResponse
+import com.app.festival_backend.dto.quote.QuotePostUpdateRequest
 import com.app.festival_backend.service.QuotePostService
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -22,9 +24,9 @@ class QuotePostController(
         @Valid @RequestBody request: QuotePostRequest
     ): ResponseEntity<ApiResponse<QuotePostResponse>> {
         val response = quotePostService.create(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        return ResponseEntity.ok(
             ApiResponse(
-                status = 201,
+                status = 200,
                 message = "Quote created successfully",
                 data = response
             )
@@ -36,22 +38,22 @@ class QuotePostController(
         @RequestParam("title") title: String,
         @RequestParam("quoteText") quoteText: String,
         @RequestParam("categoryId") categoryId: Long,
-        @RequestParam("isPremium", defaultValue = "false") isPremium: Boolean,
-        @RequestParam("displayOrder", defaultValue = "0") displayOrder: Int
+        @RequestParam("isPremium", required = false) isPremium: Boolean?,
+        @RequestParam("displayOrder", required = false) displayOrder: Int?
     ): ResponseEntity<ApiResponse<QuotePostResponse>> {
 
         val request = QuotePostRequest(
             title = title,
             quoteText = quoteText,
             categoryId = categoryId,
-            isPremium = isPremium,
+            isPremium = isPremium ?: false,
             displayOrder = displayOrder
         )
 
         val response = quotePostService.create(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        return ResponseEntity.ok(
             ApiResponse(
-                status = 201,
+                status = 200,
                 message = "Quote created successfully",
                 data = response
             )
@@ -60,9 +62,10 @@ class QuotePostController(
 
     @GetMapping("/get")
     fun getAll(
-        @RequestParam(defaultValue = "0") page: Int
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
-        val response = quotePostService.getAllPaginated(page)
+        val response = quotePostService.getAllPaginated(page, size)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -72,11 +75,11 @@ class QuotePostController(
         )
     }
 
-    @GetMapping("/get/{id}")
-    fun getById(
-        @PathVariable id: Long
+    @PostMapping(value = ["/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun getByIdJson(
+        @Valid @RequestBody request: DeleteQuoteRequest
     ): ResponseEntity<ApiResponse<QuotePostResponse>> {
-        val response = quotePostService.getById(id)
+        val response = quotePostService.getById(request.quoteId)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -86,12 +89,57 @@ class QuotePostController(
         )
     }
 
-    @PostMapping(value = ["/update/{id}"], consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun updateJson(
-        @PathVariable id: Long,
-        @Valid @RequestBody request: QuotePostRequest
+    @PostMapping(value = ["/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun getByIdMultipart(
+        @Valid @ModelAttribute request: DeleteQuoteRequest
     ): ResponseEntity<ApiResponse<QuotePostResponse>> {
-        val response = quotePostService.update(id, request)
+        val response = quotePostService.getById(request.quoteId)
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Quote fetched successfully",
+                data = response
+            )
+        )
+    }
+
+    @PostMapping(value = ["/category/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun getByCategoryJson(
+        @Valid @RequestBody request: CategoryContentRequest,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
+        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Quotes fetched successfully",
+                data = response
+            )
+        )
+    }
+
+    @PostMapping(value = ["/category/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun getByCategoryMultipart(
+        @Valid @ModelAttribute request: CategoryContentRequest,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
+        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Quotes fetched successfully",
+                data = response
+            )
+        )
+    }
+
+    @PostMapping(value = ["/update"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun updateJson(
+        @Valid @RequestBody request: QuotePostUpdateRequest
+    ): ResponseEntity<ApiResponse<QuotePostResponse>> {
+        val response = quotePostService.update(request)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -101,17 +149,18 @@ class QuotePostController(
         )
     }
 
-    @PostMapping(value = ["/update/{id}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping(value = ["/update"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updateMultipart(
-        @PathVariable id: Long,
-        @RequestParam("title") title: String,
-        @RequestParam("quoteText") quoteText: String,
-        @RequestParam("categoryId") categoryId: Long,
-        @RequestParam("isPremium", defaultValue = "false") isPremium: Boolean,
-        @RequestParam("displayOrder", defaultValue = "0") displayOrder: Int
+        @RequestParam("quoteId") quoteId: Long,
+        @RequestParam("title", required = false) title: String?,
+        @RequestParam("quoteText", required = false) quoteText: String?,
+        @RequestParam("categoryId", required = false) categoryId: Long?,
+        @RequestParam("isPremium", required = false) isPremium: Boolean?,
+        @RequestParam("displayOrder", required = false) displayOrder: Int?
     ): ResponseEntity<ApiResponse<QuotePostResponse>> {
 
-        val request = QuotePostRequest(
+        val request = QuotePostUpdateRequest(
+            quoteId = quoteId,
             title = title,
             quoteText = quoteText,
             categoryId = categoryId,
@@ -119,7 +168,7 @@ class QuotePostController(
             displayOrder = displayOrder
         )
 
-        val response = quotePostService.update(id, request)
+        val response = quotePostService.update(request)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -129,11 +178,25 @@ class QuotePostController(
         )
     }
 
-    @PostMapping("/delete/{id}")
-    fun delete(
-        @PathVariable id: Long
+    @PostMapping(value = ["/delete"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun deleteJson(
+        @Valid @RequestBody request: DeleteQuoteRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
-        quotePostService.delete(id)
+        quotePostService.delete(request.quoteId)
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Quote deleted successfully",
+                data = null
+            )
+        )
+    }
+
+    @PostMapping(value = ["/delete"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun deleteMultipart(
+        @Valid @ModelAttribute request: DeleteQuoteRequest
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        quotePostService.delete(request.quoteId)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,

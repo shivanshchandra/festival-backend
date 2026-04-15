@@ -2,6 +2,7 @@ package com.app.festival_backend.service
 
 import com.app.festival_backend.dto.category.CategoryRequest
 import com.app.festival_backend.dto.category.CategoryResponse
+import com.app.festival_backend.dto.category.CategoryUpdateRequest
 import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.entity.Category
 import com.app.festival_backend.exception.BadRequestException
@@ -24,13 +25,27 @@ class CategoryService(
             throw BadRequestException("Category already exists with name: $normalizedName")
         }
 
+        val finalImageUrl = request.imageUrl?.trim()
+        val finalThumbnailUrl = request.thumbnailUrl?.trim()
+
+        if (finalImageUrl.isNullOrBlank()) {
+            throw BadRequestException("Image file is required")
+        }
+
+        if (finalThumbnailUrl.isNullOrBlank()) {
+            throw BadRequestException("Thumbnail file is required")
+        }
+
+        val finalDisplayOrder =
+            request.displayOrder ?: (categoryRepository.findMaxDisplayOrder() + 1)
+
         val category = Category(
             name = normalizedName,
-            description = request.description,
-            imageUrl = request.imageUrl,
-            thumbnailUrl = request.thumbnailUrl,
+            description = request.description?.trim(),
+            imageUrl = finalImageUrl,
+            thumbnailUrl = finalThumbnailUrl,
             isPremium = request.isPremium,
-            displayOrder = request.displayOrder,
+            displayOrder = finalDisplayOrder,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
@@ -38,10 +53,10 @@ class CategoryService(
         return CategoryResponse.from(categoryRepository.save(category))
     }
 
-    fun getAllPaginated(page: Int): PagedResponse<CategoryResponse> {
+    fun getAllPaginated(page: Int, size: Int): PagedResponse<CategoryResponse> {
         val pageable = PageRequest.of(
             page,
-            10,
+            size,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")
@@ -67,23 +82,23 @@ class CategoryService(
         return CategoryResponse.from(category)
     }
 
-    fun update(id: Long, request: CategoryRequest): CategoryResponse {
-        val existing = categoryRepository.findById(id)
-            .orElseThrow { ResourceNotFoundException("Category not found with id: $id") }
+    fun update(request: CategoryUpdateRequest): CategoryResponse {
+        val existing = categoryRepository.findById(request.categoryId)
+            .orElseThrow { ResourceNotFoundException("Category not found with id: ${request.categoryId}") }
 
-        val normalizedName = request.name.trim()
+        val finalName = request.name?.trim()?.takeIf { it.isNotBlank() } ?: existing.name
 
-        if (normalizedName != existing.name && categoryRepository.existsByName(normalizedName)) {
-            throw BadRequestException("Category already exists with name: $normalizedName")
+        if (finalName != existing.name && categoryRepository.existsByName(finalName)) {
+            throw BadRequestException("Category already exists with name: $finalName")
         }
 
         val updated = existing.copy(
-            name = normalizedName,
-            description = request.description,
-            imageUrl = request.imageUrl,
-            thumbnailUrl = request.thumbnailUrl,
-            isPremium = request.isPremium,
-            displayOrder = request.displayOrder,
+            name = finalName,
+            description = request.description ?: existing.description,
+            imageUrl = request.imageUrl?.takeIf { it.isNotBlank() } ?: existing.imageUrl,
+            thumbnailUrl = request.thumbnailUrl?.takeIf { it.isNotBlank() } ?: existing.thumbnailUrl,
+            isPremium = request.isPremium ?: existing.isPremium,
+            displayOrder = request.displayOrder ?: existing.displayOrder,
             updatedAt = LocalDateTime.now()
         )
 

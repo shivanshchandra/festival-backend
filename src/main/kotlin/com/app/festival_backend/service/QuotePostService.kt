@@ -3,6 +3,7 @@ package com.app.festival_backend.service
 import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.dto.quote.QuotePostRequest
 import com.app.festival_backend.dto.quote.QuotePostResponse
+import com.app.festival_backend.dto.quote.QuotePostUpdateRequest
 import com.app.festival_backend.entity.QuotePost
 import com.app.festival_backend.exception.ResourceNotFoundException
 import com.app.festival_backend.repository.CategoryRepository
@@ -22,12 +23,14 @@ class QuotePostService(
         val category = categoryRepository.findById(request.categoryId)
             .orElseThrow { ResourceNotFoundException("Category not found with id: ${request.categoryId}") }
 
+        val finalDisplayOrder = request.displayOrder ?: (quotePostRepository.findMaxDisplayOrder() + 1)
+
         val quotePost = QuotePost(
-            title = request.title,
-            quoteText = request.quoteText,
+            title = request.title.trim(),
+            quoteText = request.quoteText.trim(),
             category = category,
             isPremium = request.isPremium,
-            displayOrder = request.displayOrder,
+            displayOrder = finalDisplayOrder,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
@@ -35,10 +38,10 @@ class QuotePostService(
         return QuotePostResponse.from(quotePostRepository.save(quotePost))
     }
 
-    fun getAllPaginated(page: Int): PagedResponse<QuotePostResponse> {
+    fun getAllPaginated(page: Int, size: Int): PagedResponse<QuotePostResponse> {
         val pageable = PageRequest.of(
             page,
-            10,
+            size,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")
@@ -64,14 +67,14 @@ class QuotePostService(
         return QuotePostResponse.from(quotePost)
     }
 
-    fun getByCategoryIdPaginated(categoryId: Long, page: Int): PagedResponse<QuotePostResponse> {
+    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<QuotePostResponse> {
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
 
         val pageable = PageRequest.of(
             page,
-            10,
+            size,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
                 Sort.Order.asc("id")
@@ -90,19 +93,21 @@ class QuotePostService(
         )
     }
 
-    fun update(id: Long, request: QuotePostRequest): QuotePostResponse {
-        val existing = quotePostRepository.findById(id)
-            .orElseThrow { ResourceNotFoundException("Quote post not found with id: $id") }
+    fun update(request: QuotePostUpdateRequest): QuotePostResponse {
+        val existing = quotePostRepository.findById(request.quoteId)
+            .orElseThrow { ResourceNotFoundException("Quote post not found with id: ${request.quoteId}") }
 
-        val category = categoryRepository.findById(request.categoryId)
-            .orElseThrow { ResourceNotFoundException("Category not found with id: ${request.categoryId}") }
+        val category = request.categoryId?.let {
+            categoryRepository.findById(it)
+                .orElseThrow { ResourceNotFoundException("Category not found with id: $it") }
+        } ?: existing.category
 
         val updated = existing.copy(
-            title = request.title,
-            quoteText = request.quoteText,
+            title = request.title?.takeIf { it.isNotBlank() }?.trim() ?: existing.title,
+            quoteText = request.quoteText?.takeIf { it.isNotBlank() }?.trim() ?: existing.quoteText,
             category = category,
-            isPremium = request.isPremium,
-            displayOrder = request.displayOrder,
+            isPremium = request.isPremium ?: existing.isPremium,
+            displayOrder = request.displayOrder ?: existing.displayOrder,
             updatedAt = LocalDateTime.now()
         )
 

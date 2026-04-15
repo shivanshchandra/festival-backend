@@ -1,13 +1,14 @@
 package com.app.festival_backend.controller
 
 import com.app.festival_backend.dto.common.ApiResponse
+import com.app.festival_backend.dto.common.DeleteVideoRequest
 import com.app.festival_backend.dto.common.PagedResponse
 import com.app.festival_backend.dto.video.VideoPostRequest
 import com.app.festival_backend.dto.video.VideoPostResponse
+import com.app.festival_backend.dto.video.VideoPostUpdateRequest
 import com.app.festival_backend.service.FileStorageService
 import com.app.festival_backend.service.VideoPostService
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -25,9 +26,9 @@ class VideoPostController(
         @Valid @RequestBody request: VideoPostRequest
     ): ResponseEntity<ApiResponse<VideoPostResponse>> {
         val response = videoPostService.create(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        return ResponseEntity.ok(
             ApiResponse(
-                status = 201,
+                status = 200,
                 message = "Video created successfully",
                 data = response
             )
@@ -38,30 +39,39 @@ class VideoPostController(
     fun createMultipart(
         @RequestParam("title") title: String,
         @RequestParam("categoryId") categoryId: Long,
-        @RequestParam("isPremium", defaultValue = "false") isPremium: Boolean,
-        @RequestParam("displayOrder", defaultValue = "0") displayOrder: Int,
+        @RequestParam("isPremium", required = false) isPremium: Boolean?,
+        @RequestParam("displayOrder", required = false) displayOrder: Int?,
         @RequestParam("videoFile", required = false) videoFile: MultipartFile?,
         @RequestParam("thumbnailFile", required = false) thumbnailFile: MultipartFile?,
         @RequestParam("videoUrl", required = false) videoUrl: String?,
         @RequestParam("thumbnailUrl", required = false) thumbnailUrl: String?
     ): ResponseEntity<ApiResponse<VideoPostResponse>> {
 
-        val finalVideoUrl = videoFile?.let { fileStorageService.uploadVideo(it).fileUrl } ?: videoUrl.orEmpty()
-        val finalThumbnailUrl = thumbnailFile?.let { fileStorageService.uploadImage(it).fileUrl } ?: thumbnailUrl
+        val finalVideoUrl = if (videoFile != null && !videoFile.isEmpty) {
+            fileStorageService.uploadVideo(videoFile).fileUrl
+        } else {
+            videoUrl.orEmpty()
+        }
+
+        val finalThumbnailUrl = if (thumbnailFile != null && !thumbnailFile.isEmpty) {
+            fileStorageService.uploadImage(thumbnailFile).fileUrl
+        } else {
+            thumbnailUrl
+        }
 
         val request = VideoPostRequest(
             title = title,
             videoUrl = finalVideoUrl,
             thumbnailUrl = finalThumbnailUrl,
             categoryId = categoryId,
-            isPremium = isPremium,
+            isPremium = isPremium ?: false,
             displayOrder = displayOrder
         )
 
         val response = videoPostService.create(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        return ResponseEntity.ok(
             ApiResponse(
-                status = 201,
+                status = 200,
                 message = "Video created successfully",
                 data = response
             )
@@ -96,12 +106,11 @@ class VideoPostController(
         )
     }
 
-    @PostMapping(value = ["/update/{id}"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(value = ["/update"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun updateJson(
-        @PathVariable id: Long,
-        @Valid @RequestBody request: VideoPostRequest
+        @Valid @RequestBody request: VideoPostUpdateRequest
     ): ResponseEntity<ApiResponse<VideoPostResponse>> {
-        val response = videoPostService.update(id, request)
+        val response = videoPostService.update(request)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -111,23 +120,33 @@ class VideoPostController(
         )
     }
 
-    @PostMapping(value = ["/update/{id}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping(value = ["/update"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updateMultipart(
-        @PathVariable id: Long,
-        @RequestParam("title") title: String,
-        @RequestParam("categoryId") categoryId: Long,
-        @RequestParam("isPremium", defaultValue = "false") isPremium: Boolean,
-        @RequestParam("displayOrder", defaultValue = "0") displayOrder: Int,
+        @RequestParam("videoId") videoId: Long,
+        @RequestParam("title", required = false) title: String?,
+        @RequestParam("categoryId", required = false) categoryId: Long?,
+        @RequestParam("isPremium", required = false) isPremium: Boolean?,
+        @RequestParam("displayOrder", required = false) displayOrder: Int?,
         @RequestParam("videoFile", required = false) videoFile: MultipartFile?,
         @RequestParam("thumbnailFile", required = false) thumbnailFile: MultipartFile?,
         @RequestParam("videoUrl", required = false) videoUrl: String?,
         @RequestParam("thumbnailUrl", required = false) thumbnailUrl: String?
     ): ResponseEntity<ApiResponse<VideoPostResponse>> {
 
-        val finalVideoUrl = videoFile?.let { fileStorageService.uploadVideo(it).fileUrl } ?: videoUrl.orEmpty()
-        val finalThumbnailUrl = thumbnailFile?.let { fileStorageService.uploadImage(it).fileUrl } ?: thumbnailUrl
+        val finalVideoUrl = if (videoFile != null && !videoFile.isEmpty) {
+            fileStorageService.uploadVideo(videoFile).fileUrl
+        } else {
+            videoUrl
+        }
 
-        val request = VideoPostRequest(
+        val finalThumbnailUrl = if (thumbnailFile != null && !thumbnailFile.isEmpty) {
+            fileStorageService.uploadImage(thumbnailFile).fileUrl
+        } else {
+            thumbnailUrl
+        }
+
+        val request = VideoPostUpdateRequest(
+            videoId = videoId,
             title = title,
             videoUrl = finalVideoUrl,
             thumbnailUrl = finalThumbnailUrl,
@@ -136,7 +155,7 @@ class VideoPostController(
             displayOrder = displayOrder
         )
 
-        val response = videoPostService.update(id, request)
+        val response = videoPostService.update(request)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -146,11 +165,25 @@ class VideoPostController(
         )
     }
 
-    @PostMapping("/delete/{id}")
-    fun delete(
-        @PathVariable id: Long
+    @PostMapping(value = ["/delete"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun deleteJson(
+        @Valid @RequestBody request: DeleteVideoRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
-        videoPostService.delete(id)
+        videoPostService.delete(request.videoId)
+        return ResponseEntity.ok(
+            ApiResponse(
+                status = 200,
+                message = "Video deleted successfully",
+                data = null
+            )
+        )
+    }
+
+    @PostMapping(value = ["/delete"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun deleteMultipart(
+        @Valid @ModelAttribute request: DeleteVideoRequest
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        videoPostService.delete(request.videoId)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,

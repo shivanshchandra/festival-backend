@@ -20,5 +20,5 @@ data class QuotePostRequest(
     val isPremium: Boolean = false,
 
     @field:Min(value = 0, message = "Display order must be 0 or greater")
-    val displayOrder: Int = 0
+    val displayOrder: Int? = null
 )
