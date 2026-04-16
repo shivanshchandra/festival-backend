@@ -39,8 +39,9 @@ class QuotePostService(
     }
 
     fun getAllPaginated(page: Int, size: Int): PagedResponse<QuotePostResponse> {
+        val pageNumber = if (page < 1) 0 else page - 1
         val pageable = PageRequest.of(
-            page,
+            pageNumber,
             size,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
@@ -52,7 +53,7 @@ class QuotePostService(
 
         return PagedResponse(
             content = result.content.map { QuotePostResponse.from(it) },
-            page = result.number,
+            page = result.number + 1,
             size = result.size,
             totalElements = result.totalElements,
             totalPages = result.totalPages,
@@ -72,8 +73,9 @@ class QuotePostService(
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
 
+        val pageNumber = if (page < 1) 0 else page - 1
         val pageable = PageRequest.of(
-            page,
+            pageNumber,
             size,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
@@ -85,7 +87,7 @@ class QuotePostService(
 
         return PagedResponse(
             content = result.content.map { QuotePostResponse.from(it) },
-            page = result.number,
+            page = result.number + 1,
             size = result.size,
             totalElements = result.totalElements,
             totalPages = result.totalPages,

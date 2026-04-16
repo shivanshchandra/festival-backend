@@ -64,10 +64,6 @@ class CategoryController(
             throw BadRequestException("Image file is required")
         }
 
-        if (finalThumbnailUrl.isNullOrBlank()) {
-            throw BadRequestException("Thumbnail file is required")
-        }
-
         val request = CategoryRequest(
             name = name,
             description = description,
@@ -89,7 +85,7 @@ class CategoryController(
 
     @GetMapping("/get")
     fun getAll(
-        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<CategoryResponse>>> {
         val response = categoryService.getAllPaginated(page, size)

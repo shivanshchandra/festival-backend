@@ -25,7 +25,7 @@ class CategoryContentController(
     @PostMapping(value = ["/images/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun getImagesByCategoryIdJson(
         @Valid @RequestBody request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "0") page: Int,
+        @RequestHeader(name = "page", defaultValue = "1") page: Int,
         @RequestHeader(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
         val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size)
@@ -35,7 +35,7 @@ class CategoryContentController(
     @PostMapping(value = ["/images/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun getImagesByCategoryIdMultipart(
         @Valid @ModelAttribute request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "0") page: Int,
+        @RequestHeader(name = "page", defaultValue = "1") page: Int,
         @RequestHeader(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
         val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size)
@@ -45,7 +45,7 @@ class CategoryContentController(
     @PostMapping(value = ["/videos/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun getVideosByCategoryIdJson(
         @Valid @RequestBody request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "0") page: Int,
+        @RequestHeader(name = "page", defaultValue = "1") page: Int,
         @RequestHeader(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<VideoPostResponse>>> {
         val response = videoPostService.getByCategoryIdPaginated(request.categoryId, page, size)
@@ -55,7 +55,7 @@ class CategoryContentController(
     @PostMapping(value = ["/videos/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun getVideosByCategoryIdMultipart(
         @Valid @ModelAttribute request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "0") page: Int,
+        @RequestHeader(name = "page", defaultValue = "1") page: Int,
         @RequestHeader(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<VideoPostResponse>>> {
         val response = videoPostService.getByCategoryIdPaginated(request.categoryId, page, size)
@@ -65,7 +65,7 @@ class CategoryContentController(
     @PostMapping(value = ["/quotes/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun getQuotesByCategoryIdJson(
         @Valid @RequestBody request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "0") page: Int,
+        @RequestHeader(name = "page", defaultValue = "1") page: Int,
         @RequestHeader(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
         val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
@@ -75,7 +75,7 @@ class CategoryContentController(
     @PostMapping(value = ["/quotes/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun getQuotesByCategoryIdMultipart(
         @Valid @ModelAttribute request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "0") page: Int,
+        @RequestHeader(name = "page", defaultValue = "1") page: Int,
         @RequestHeader(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
         val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)

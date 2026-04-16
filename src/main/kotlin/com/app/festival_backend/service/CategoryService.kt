@@ -32,10 +32,6 @@ class CategoryService(
             throw BadRequestException("Image file is required")
         }
 
-        if (finalThumbnailUrl.isNullOrBlank()) {
-            throw BadRequestException("Thumbnail file is required")
-        }
-
         val finalDisplayOrder =
             request.displayOrder ?: (categoryRepository.findMaxDisplayOrder() + 1)
 
@@ -54,8 +50,9 @@ class CategoryService(
     }
 
     fun getAllPaginated(page: Int, size: Int): PagedResponse<CategoryResponse> {
+        val pageNumber = if (page < 1) 0 else page - 1
         val pageable = PageRequest.of(
-            page,
+            pageNumber,
             size,
             Sort.by(
                 Sort.Order.asc("displayOrder"),
@@ -67,7 +64,7 @@ class CategoryService(
 
         return PagedResponse(
             content = result.content.map { CategoryResponse.from(it) },
-            page = result.number,
+            page = result.number + 1,
             size = result.size,
             totalElements = result.totalElements,
             totalPages = result.totalPages,

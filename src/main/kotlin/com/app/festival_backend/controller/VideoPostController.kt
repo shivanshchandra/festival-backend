@@ -80,7 +80,7 @@ class VideoPostController(
 
     @GetMapping("/get")
     fun getAll(
-        @RequestParam(defaultValue = "0") page: Int
+        @RequestParam(defaultValue = "1") page: Int
     ): ResponseEntity<ApiResponse<PagedResponse<VideoPostResponse>>> {
         val response = videoPostService.getAllPaginated(page)
         return ResponseEntity.ok(

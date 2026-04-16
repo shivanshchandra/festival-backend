@@ -62,7 +62,7 @@ class QuotePostController(
 
     @GetMapping("/get")
     fun getAll(
-        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
         val response = quotePostService.getAllPaginated(page, size)
@@ -106,7 +106,7 @@ class QuotePostController(
     @PostMapping(value = ["/category/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun getByCategoryJson(
         @Valid @RequestBody request: CategoryContentRequest,
-        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
         val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
@@ -122,7 +122,7 @@ class QuotePostController(
     @PostMapping(value = ["/category/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun getByCategoryMultipart(
         @Valid @ModelAttribute request: CategoryContentRequest,
-        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
         val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
