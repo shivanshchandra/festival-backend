@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/festival_dev
+    username: dev_user
+    password: dev123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
+
+  servlet:
+    multipart:
+      enabled: true
+      location: ${java.io.tmpdir}
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
+  devtools:
+    restart:
+      enabled: false
+
+server:
+  port: 8081
+
+app:
+  file:
+    upload-dir: uploads
+    image-dir: uploads/images
+    video-dir: uploads/videos
+    base-url: http://148.230.66.38:8081
