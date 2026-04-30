@@ -107,9 +107,10 @@ class QuotePostController(
     fun getByCategoryJson(
         @Valid @RequestBody request: CategoryContentRequest,
         @RequestParam(defaultValue = "1") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
-        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size, search)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -123,9 +124,10 @@ class QuotePostController(
     fun getByCategoryMultipart(
         @Valid @ModelAttribute request: CategoryContentRequest,
         @RequestParam(defaultValue = "1") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
-        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size, search)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,

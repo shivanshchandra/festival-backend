@@ -18,4 +18,10 @@ interface ImagePostRepository : JpaRepository<ImagePost, Long> {
 
     @Query("select coalesce(max(i.displayOrder), 0) from ImagePost i")
     fun findMaxDisplayOrder(): Int
+
+    fun findByCategory_IdAndTitleContainingIgnoreCase(
+        categoryId: Long,
+        title: String,
+        pageable: Pageable
+    ): Page<ImagePost>
 }

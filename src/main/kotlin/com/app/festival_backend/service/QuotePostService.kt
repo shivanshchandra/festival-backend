@@ -68,12 +68,19 @@ class QuotePostService(
         return QuotePostResponse.from(quotePost)
     }
 
-    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<QuotePostResponse> {
+    fun getByCategoryIdPaginated(
+        categoryId: Long,
+        page: Int,
+        size: Int,
+        search: String?
+    ): PagedResponse<QuotePostResponse> {
+
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
 
         val pageNumber = if (page < 1) 0 else page - 1
+
         val pageable = PageRequest.of(
             pageNumber,
             size,
@@ -83,7 +90,15 @@ class QuotePostService(
             )
         )
 
-        val result = quotePostRepository.findByCategory_Id(categoryId, pageable)
+        val result = if (!search.isNullOrBlank()) {
+            quotePostRepository.findByCategory_IdAndTitleContainingIgnoreCaseOrCategory_IdAndQuoteTextContainingIgnoreCase(
+                categoryId,
+                search,
+                pageable
+            )
+        } else {
+            quotePostRepository.findByCategory_Id(categoryId, pageable)
+        }
 
         return PagedResponse(
             content = result.content.map { QuotePostResponse.from(it) },

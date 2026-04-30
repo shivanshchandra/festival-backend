@@ -49,8 +49,9 @@ class CategoryService(
         return CategoryResponse.from(categoryRepository.save(category))
     }
 
-    fun getAllPaginated(page: Int, size: Int): PagedResponse<CategoryResponse> {
+    fun getAllPaginated(page: Int, size: Int, search: String?): PagedResponse<CategoryResponse> {
         val pageNumber = if (page < 1) 0 else page - 1
+
         val pageable = PageRequest.of(
             pageNumber,
             size,
@@ -60,7 +61,11 @@ class CategoryService(
             )
         )
 
-        val result = categoryRepository.findAll(pageable)
+        val result = if (!search.isNullOrBlank()) {
+            categoryRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, pageable)
+        } else {
+            categoryRepository.findAll(pageable)
+        }
 
         return PagedResponse(
             content = result.content.map { CategoryResponse.from(it) },

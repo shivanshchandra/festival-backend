@@ -86,9 +86,11 @@ class CategoryController(
     @GetMapping("/get")
     fun getAll(
         @RequestParam(defaultValue = "1") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<CategoryResponse>>> {
-        val response = categoryService.getAllPaginated(page, size)
+
+        val response = categoryService.getAllPaginated(page, size, search)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,

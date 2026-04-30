@@ -18,4 +18,10 @@ interface QuotePostRepository : JpaRepository<QuotePost, Long> {
 
     @Query("select coalesce(max(q.displayOrder), 0) from QuotePost q")
     fun findMaxDisplayOrder(): Int
+
+    fun findByCategory_IdAndTitleContainingIgnoreCaseOrCategory_IdAndQuoteTextContainingIgnoreCase(
+        categoryId: Long,
+        quoteText: String,
+        pageable: Pageable
+    ): Page<QuotePost>
 }

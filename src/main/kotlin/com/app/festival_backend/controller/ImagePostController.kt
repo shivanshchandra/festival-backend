@@ -126,9 +126,10 @@ class ImagePostController(
     fun getByCategoryJson(
         @Valid @RequestBody request: CategoryContentRequest,
         @RequestParam(defaultValue = "1") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
-        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size, search)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,
@@ -140,11 +141,12 @@ class ImagePostController(
 
     @PostMapping(value = ["/category/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun getByCategoryMultipart(
-        @Valid @ModelAttribute request: CategoryContentRequest,
+        @Valid @RequestBody request: CategoryContentRequest,
         @RequestParam(defaultValue = "1") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
-        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size, search)
         return ResponseEntity.ok(
             ApiResponse(
                 status = 200,

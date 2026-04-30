@@ -75,12 +75,19 @@ class ImagePostService(
         return ImagePostResponse.from(imagePost)
     }
 
-    fun getByCategoryIdPaginated(categoryId: Long, page: Int, size: Int): PagedResponse<ImagePostResponse> {
+    fun getByCategoryIdPaginated(
+        categoryId: Long,
+        page: Int,
+        size: Int,
+        search: String?
+    ): PagedResponse<ImagePostResponse> {
+
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
 
         val pageNumber = if (page < 1) 0 else page - 1
+
         val pageable = PageRequest.of(
             pageNumber,
             size,
@@ -90,7 +97,11 @@ class ImagePostService(
             )
         )
 
-        val result = imagePostRepository.findByCategory_Id(categoryId, pageable)
+        val result = if (!search.isNullOrBlank()) {
+            imagePostRepository.findByCategory_IdAndTitleContainingIgnoreCase(categoryId, search, pageable)
+        } else {
+            imagePostRepository.findByCategory_Id(categoryId, pageable)
+        }
 
         return PagedResponse(
             content = result.content.map { ImagePostResponse.from(it) },

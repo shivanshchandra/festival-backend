@@ -25,20 +25,22 @@ class CategoryContentController(
     @PostMapping(value = ["/images/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun getImagesByCategoryIdJson(
         @Valid @RequestBody request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "1") page: Int,
-        @RequestHeader(name = "size", defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
-        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size, search)
         return ResponseEntity.ok(ApiResponse(200, "Images fetched successfully", response))
     }
 
     @PostMapping(value = ["/images/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun getImagesByCategoryIdMultipart(
         @Valid @ModelAttribute request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "1") page: Int,
-        @RequestHeader(name = "size", defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<ImagePostResponse>>> {
-        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = imagePostService.getByCategoryIdPaginated(request.categoryId, page, size,  search)
         return ResponseEntity.ok(ApiResponse(200, "Images fetched successfully", response))
     }
 
@@ -65,20 +67,22 @@ class CategoryContentController(
     @PostMapping(value = ["/quotes/get"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun getQuotesByCategoryIdJson(
         @Valid @RequestBody request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "1") page: Int,
-        @RequestHeader(name = "size", defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
-        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size, search)
         return ResponseEntity.ok(ApiResponse(200, "Quotes fetched successfully", response))
     }
 
     @PostMapping(value = ["/quotes/get"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun getQuotesByCategoryIdMultipart(
         @Valid @ModelAttribute request: CategoryContentRequest,
-        @RequestHeader(name = "page", defaultValue = "1") page: Int,
-        @RequestHeader(name = "size", defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
     ): ResponseEntity<ApiResponse<PagedResponse<QuotePostResponse>>> {
-        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size)
+        val response = quotePostService.getByCategoryIdPaginated(request.categoryId, page, size, search)
         return ResponseEntity.ok(ApiResponse(200, "Quotes fetched successfully", response))
     }
 }
