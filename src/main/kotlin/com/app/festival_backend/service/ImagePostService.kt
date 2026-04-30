@@ -45,8 +45,10 @@ class ImagePostService(
         return ImagePostResponse.from(imagePostRepository.save(imagePost))
     }
 
-    fun getAllPaginated(page: Int, size: Int): PagedResponse<ImagePostResponse> {
+    fun getAllPaginated(page: Int, size: Int, search: String?): PagedResponse<ImagePostResponse> {
+
         val pageNumber = if (page < 1) 0 else page - 1
+
         val pageable = PageRequest.of(
             pageNumber,
             size,
@@ -56,7 +58,13 @@ class ImagePostService(
             )
         )
 
-        val result = imagePostRepository.findAll(pageable)
+        val result = if (!search.isNullOrBlank()) {
+            println(">>> IMAGE GLOBAL SEARCH: $search")
+            imagePostRepository.searchAll(search, pageable)
+        } else {
+            println(">>> IMAGE NORMAL FETCH")
+            imagePostRepository.findAll(pageable)
+        }
 
         return PagedResponse(
             content = result.content.map { ImagePostResponse.from(it) },
@@ -98,7 +106,7 @@ class ImagePostService(
         )
 
         val result = if (!search.isNullOrBlank()) {
-            imagePostRepository.findByCategory_IdAndTitleContainingIgnoreCase(categoryId, search, pageable)
+            imagePostRepository.searchByCategory(categoryId, search, pageable)
         } else {
             imagePostRepository.findByCategory_Id(categoryId, pageable)
         }
