@@ -38,8 +38,10 @@ class QuotePostService(
         return QuotePostResponse.from(quotePostRepository.save(quotePost))
     }
 
-    fun getAllPaginated(page: Int, size: Int): PagedResponse<QuotePostResponse> {
+    fun getAllPaginated(page: Int, size: Int, search: String?): PagedResponse<QuotePostResponse> {
+
         val pageNumber = if (page < 1) 0 else page - 1
+
         val pageable = PageRequest.of(
             pageNumber,
             size,
@@ -49,7 +51,13 @@ class QuotePostService(
             )
         )
 
-        val result = quotePostRepository.findAll(pageable)
+        val result = if (!search.isNullOrBlank()) {
+            println(">>> GLOBAL SEARCH HIT: $search")
+            quotePostRepository.searchAll(search, pageable)
+        } else {
+            println(">>> NORMAL FETCH ALL")
+            quotePostRepository.findAll(pageable)
+        }
 
         return PagedResponse(
             content = result.content.map { QuotePostResponse.from(it) },
@@ -75,6 +83,8 @@ class QuotePostService(
         search: String?
     ): PagedResponse<QuotePostResponse> {
 
+        println(">>> SEARCH METHOD HIT: categoryId=$categoryId, search=$search")
+
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
@@ -91,12 +101,10 @@ class QuotePostService(
         )
 
         val result = if (!search.isNullOrBlank()) {
-            quotePostRepository.findByCategory_IdAndTitleContainingIgnoreCaseOrCategory_IdAndQuoteTextContainingIgnoreCase(
-                categoryId,
-                search,
-                pageable
-            )
+            println(">>> USING SEARCH QUERY")
+            quotePostRepository.searchByCategory(categoryId, search, pageable)
         } else {
+            println(">>> USING NORMAL FETCH")
             quotePostRepository.findByCategory_Id(categoryId, pageable)
         }
 

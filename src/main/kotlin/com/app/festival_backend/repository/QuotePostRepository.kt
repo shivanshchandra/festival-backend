@@ -19,9 +19,27 @@ interface QuotePostRepository : JpaRepository<QuotePost, Long> {
     @Query("select coalesce(max(q.displayOrder), 0) from QuotePost q")
     fun findMaxDisplayOrder(): Int
 
-    fun findByCategory_IdAndTitleContainingIgnoreCaseOrCategory_IdAndQuoteTextContainingIgnoreCase(
+    @Query("""
+    SELECT q FROM QuotePost q
+    WHERE q.category.id = :categoryId
+    AND (
+        LOWER(q.title) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(q.quoteText) LIKE LOWER(CONCAT('%', :search, '%'))
+    )
+""")
+    fun searchByCategory(
         categoryId: Long,
-        quoteText: String,
+        search: String,
+        pageable: Pageable
+    ): Page<QuotePost>
+
+    @Query("""
+    SELECT q FROM QuotePost q
+    WHERE LOWER(q.title) LIKE LOWER(CONCAT('%', :search, '%'))
+       OR LOWER(q.quoteText) LIKE LOWER(CONCAT('%', :search, '%'))
+""")
+    fun searchAll(
+        search: String,
         pageable: Pageable
     ): Page<QuotePost>
 }

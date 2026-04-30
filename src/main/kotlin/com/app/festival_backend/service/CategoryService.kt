@@ -62,7 +62,7 @@ class CategoryService(
         )
 
         val result = if (!search.isNullOrBlank()) {
-            categoryRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, pageable)
+            categoryRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search,pageable)
         } else {
             categoryRepository.findAll(pageable)
         }

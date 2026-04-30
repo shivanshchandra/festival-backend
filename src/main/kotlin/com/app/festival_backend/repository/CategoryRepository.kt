@@ -15,5 +15,9 @@ interface CategoryRepository : JpaRepository<Category, Long> {
     @Query("select coalesce(max(c.displayOrder), 0) from Category c")
     fun findMaxDisplayOrder(): Int
 
-    fun findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(name: String, pageable: Pageable): Page<Category>
+    fun findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+        name: String,
+        description: String,
+        pageable: Pageable
+    ): Page<Category>
 }
