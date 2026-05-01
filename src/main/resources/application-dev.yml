@@ -37,3 +37,7 @@ app:
     image-dir: uploads/images
     video-dir: uploads/videos
     base-url: http://148.230.66.38:8081
+
+auth:
+  username: dev_admin
+  password: admin123
