@@ -17,7 +17,8 @@ import java.time.LocalDateTime
 @Service
 class ImagePostService(
     private val imagePostRepository: ImagePostRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val fileStorageService: FileStorageService
 ) {
 
     fun create(request: ImagePostRequest): ImagePostResponse {
@@ -146,6 +147,9 @@ class ImagePostService(
     fun delete(id: Long) {
         val existing = imagePostRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Image post not found with id: $id") }
+
+        fileStorageService.deleteFile(existing.imageUrl)
+        fileStorageService.deleteFile(existing.thumbnailUrl)
 
         imagePostRepository.delete(existing)
     }

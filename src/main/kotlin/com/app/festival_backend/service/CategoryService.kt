@@ -8,6 +8,9 @@ import com.app.festival_backend.entity.Category
 import com.app.festival_backend.exception.BadRequestException
 import com.app.festival_backend.exception.ResourceNotFoundException
 import com.app.festival_backend.repository.CategoryRepository
+import com.app.festival_backend.repository.ImagePostRepository
+import com.app.festival_backend.repository.QuotePostRepository
+import com.app.festival_backend.repository.VideoPostRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -15,7 +18,11 @@ import java.time.LocalDateTime
 
 @Service
 class CategoryService(
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val imagePostRepository: ImagePostRepository,
+    private val videoPostRepository: VideoPostRepository,
+    private val quotePostRepository: QuotePostRepository,
+    private val fileStorageService: FileStorageService
 ) {
 
     fun create(request: CategoryRequest): CategoryResponse {
@@ -110,6 +117,30 @@ class CategoryService(
     fun delete(id: Long) {
         val existing = categoryRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Category not found with id: $id") }
+
+        // Delete files and DB records for all related ImagePosts
+        val imagePosts = imagePostRepository.findByCategory_IdOrderByDisplayOrderAscIdAsc(id)
+        for (imagePost in imagePosts) {
+            fileStorageService.deleteFile(imagePost.imageUrl)
+            fileStorageService.deleteFile(imagePost.thumbnailUrl)
+        }
+        imagePostRepository.deleteAll(imagePosts)
+
+        // Delete files and DB records for all related VideoPosts
+        val videoPosts = videoPostRepository.findByCategory_IdOrderByDisplayOrderAscIdAsc(id)
+        for (videoPost in videoPosts) {
+            fileStorageService.deleteFile(videoPost.videoUrl)
+            fileStorageService.deleteFile(videoPost.thumbnailUrl)
+        }
+        videoPostRepository.deleteAll(videoPosts)
+
+        // Delete DB records for all related QuotePosts (no files to delete)
+        val quotePosts = quotePostRepository.findByCategory_IdOrderByDisplayOrderAscIdAsc(id)
+        quotePostRepository.deleteAll(quotePosts)
+
+        // Delete category's own files
+        fileStorageService.deleteFile(existing.imageUrl)
+        fileStorageService.deleteFile(existing.thumbnailUrl)
 
         categoryRepository.delete(existing)
     }

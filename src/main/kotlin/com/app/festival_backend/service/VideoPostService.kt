@@ -17,7 +17,8 @@ import java.time.LocalDateTime
 @Service
 class VideoPostService(
     private val videoPostRepository: VideoPostRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val fileStorageService: FileStorageService
 ) {
 
     fun create(request: VideoPostRequest): VideoPostResponse {
@@ -125,6 +126,9 @@ class VideoPostService(
     fun delete(id: Long) {
         val existing = videoPostRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Video post not found with id: $id") }
+
+        fileStorageService.deleteFile(existing.videoUrl)
+        fileStorageService.deleteFile(existing.thumbnailUrl)
 
         videoPostRepository.delete(existing)
     }
