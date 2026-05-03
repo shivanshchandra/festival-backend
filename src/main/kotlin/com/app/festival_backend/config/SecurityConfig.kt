@@ -3,7 +3,6 @@ package com.app.festival_backend.config
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -16,7 +15,8 @@ import org.springframework.security.web.SecurityFilterChain
 class SecurityConfig(
 
     @Value("\${auth.username}") private val username: String,
-    @Value("\${auth.password}") private val password: String
+    @Value("\${auth.password}") private val password: String,
+    private val customAuthEntryPoint: CustomAuthEntryPoint
 
 ) {
 
@@ -26,13 +26,16 @@ class SecurityConfig(
             .csrf { it.disable() }
             .authorizeHttpRequests {
 
-                // 🔓 Only GET is public
-                it.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                it.requestMatchers("/actuator/health").permitAll()
+                it.requestMatchers("/uploads/**").permitAll()
 
-                // 🔐 EVERYTHING else requires auth
+                it.requestMatchers("/api/**").authenticated()
+
                 it.anyRequest().authenticated()
             }
-            .httpBasic {}
+            .httpBasic {
+                it.authenticationEntryPoint(customAuthEntryPoint)
+            }
 
         return http.build()
     }
